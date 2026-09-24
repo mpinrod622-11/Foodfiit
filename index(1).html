@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>foodfit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#FDECC8; --green-dark:#1F6B4A; --green:#2E8B5A; --sage:#9FBB98;
+    --sage-light:#E4EFDE; --orange:#F5A94E; --white:#FFFFFF; --ink:#2B3A32;
+    box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  *{box-sizing:border-box;}
+  html{scroll-padding-top:env(safe-area-inset-top,0px);}
+  body{
+    margin:0; min-height:100%; font-family:'Nunito',sans-serif; color:var(--ink);
+    background:linear-gradient(180deg,var(--cream) 0%,#FCE0B0 100%);
+    display:flex; justify-content:center; padding:24px 12px;
+  }
+  h1,h2,h3,.brand{font-family:'Baloo 2',sans-serif;}
+  .phone{
+    width:100%; max-width:420px; background:var(--white); border-radius:32px;
+    box-shadow:0 20px 50px rgba(31,107,74,.18); overflow:hidden; min-height:760px;
+    display:flex; flex-direction:column;
+  }
+  header.top{
+    background:var(--green-dark); color:var(--white); padding:18px 22px 16px;
+    display:flex; align-items:center; gap:10px;
+  }
+  header.top .brand{font-size:22px; font-weight:700; letter-spacing:.5px;}
+  header.top .leaf{font-size:20px;}
+  .screen{padding:22px; flex:1; display:none; flex-direction:column; gap:16px;}
+  .screen.active{display:flex;}
+  .lead{color:var(--green-dark); font-size:15px; line-height:1.5;}
+  .slogan{font-style:normal; font-weight:800; color:var(--green); font-size:16px;}
+  .btn{
+    border:none; border-radius:999px; padding:14px 20px; font-family:'Baloo 2',sans-serif;
+    font-size:16px; font-weight:700; cursor:pointer; transition:transform .15s ease;
+  }
+  .btn:active{transform:scale(.97);}
+  .btn-primary{background:var(--orange); color:#5A3A0E;}
+  .btn-primary:hover{filter:brightness(1.05);}
+  .btn-outline{background:transparent; border:2px solid var(--green); color:var(--green);}
+  .btn-ghost{background:var(--sage-light); color:var(--green-dark);}
+  .btn:disabled{opacity:.45; cursor:not-allowed;}
+  .card{background:var(--sage-light); border-radius:18px; padding:16px;}
+  .q-title{font-size:18px; font-weight:700; color:var(--green-dark);}
+  .choices{display:flex; flex-direction:column; gap:10px;}
+  .choice{
+    display:flex; align-items:center; gap:12px; background:var(--white);
+    border:2px solid transparent; border-radius:14px; padding:12px 14px; cursor:pointer;
+    font-weight:600; font-size:15px;
+  }
+  .choice.selected{border-color:var(--green); background:#EAF6EC;}
+  .choice .emoji{font-size:22px;}
+  .progress{display:flex; gap:6px; margin-bottom:2px;}
+  .dot{flex:1; height:5px; border-radius:3px; background:var(--sage-light);}
+  .dot.done{background:var(--green);}
+  .searchbar{
+    display:flex; align-items:center; gap:8px; background:var(--sage-light);
+    border-radius:999px; padding:10px 16px; font-size:14px; color:var(--green-dark);
+  }
+  .searchbar input{
+    border:none; background:transparent; outline:none; font-family:'Nunito'; font-size:14px;
+    flex:1; color:var(--ink);
+  }
+  .cat-label{font-size:13px; font-weight:800; color:var(--green); text-transform:uppercase; letter-spacing:.6px; margin:4px 0 -6px;}
+  .food-list{display:flex; flex-direction:column; gap:8px; max-height:360px; overflow-y:auto; padding-right:4px;}
+  .food-item{
+    display:flex; align-items:center; gap:12px; background:var(--sage-light);
+    border-radius:14px; padding:10px 12px; cursor:pointer; border:2px solid transparent;
+  }
+  .food-item.on{border-color:var(--green); background:#EAF6EC;}
+  .food-item .emoji{font-size:24px; width:30px; text-align:center;}
+  .food-item span.name{font-weight:700; font-size:14px; flex:1;}
+  .check{
+    width:20px; height:20px; border-radius:6px; border:2px solid var(--green); flex-shrink:0;
+    display:flex; align-items:center; justify-content:center; font-size:13px; color:var(--white);
+  }
+  .food-item.on .check{background:var(--green);}
+  .count-pill{
+    align-self:flex-start; background:var(--orange); color:#5A3A0E; font-weight:800;
+    font-size:12px; padding:4px 10px; border-radius:999px;
+  }
+  .recipe-card{
+    background:var(--white); border:2px solid var(--sage-light); border-radius:16px;
+    padding:14px; cursor:pointer;
+  }
+  .recipe-card:hover{border-color:var(--green);}
+  .recipe-card h3{margin:0 0 4px; font-size:17px; color:var(--green-dark);}
+  .recipe-meta{font-size:12px; color:var(--green); font-weight:700;}
+  .match-badge{
+    display:inline-block; margin-top:6px; font-size:11px; font-weight:800; padding:3px 9px;
+    border-radius:999px; background:var(--sage-light); color:var(--green-dark);
+  }
+  .match-badge.full{background:var(--green); color:var(--white);}
+  ol.steps{padding-left:20px; margin:0; display:flex; flex-direction:column; gap:8px; font-size:14px;}
+  .ing-tags{display:flex; flex-wrap:wrap; gap:6px;}
+  .ing-tag{background:var(--sage-light); color:var(--green-dark); font-size:12px; font-weight:700; padding:4px 9px; border-radius:999px;}
+  .ing-tag.missing{background:#FBE3D0; color:#A65B1E;}
+  .back-row{display:flex; align-items:center; gap:10px;}
+  .icon-btn{
+    background:var(--sage-light); border:none; width:34px; height:34px; border-radius:50%;
+    font-size:16px; cursor:pointer; color:var(--green-dark); display:flex; align-items:center; justify-content:center;
+  }
+  .empty{text-align:center; color:var(--green); font-weight:700; padding:20px 10px;}
+  footer.tabbar{
+    display:flex; border-top:1px solid var(--sage-light); padding:8px 10px calc(10px + env(safe-area-inset-bottom,0px));
+  }
+  .tab{flex:1; text-align:center; background:none; border:none; font-family:'Nunito'; font-size:11px; font-weight:700; color:var(--sage); cursor:pointer; padding:4px;}
+  .tab.active{color:var(--green-dark);}
+  .tab .ic{display:block; font-size:18px; margin-bottom:2px;}
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){ }
+  }
+</style>
+</head>
+<body>
+<div class="phone" role="application">
+
+  <header class="top"><span class="leaf">🥗</span><span class="brand">foodfit</span></header>
+
+  <!-- WELCOME -->
+  <section class="screen active" id="s-welcome">
+    <div style="text-align:center; margin-top:10px;">
+      <div style="font-size:56px;">🥗</div>
+      <h1 style="color:var(--green-dark); margin:8px 0 4px;">foodfit</h1>
+      <p class="slogan">«Con tu comida de casa, tu alimentación y tu bolsillo descansan»</p>
+    </div>
+    <p class="lead">Cuéntanos un poco sobre ti, dinos qué tienes en la nevera y te proponemos platos que ya puedes cocinar hoy mismo.</p>
+    <div style="flex:1;"></div>
+    <button class="btn btn-primary" onclick="go('s-q1')">Empezar</button>
+  </section>
+
+  <!-- QUESTION 1 -->
+  <section class="screen" id="s-q1">
+    <div class="progress"><div class="dot done"></div><div class="dot"></div><div class="dot"></div></div>
+    <div class="q-title">¿Cuál es tu objetivo principal?</div>
+    <div class="choices" id="q1-choices"></div>
+    <div style="flex:1;"></div>
+    <button class="btn btn-primary" id="q1-next" disabled onclick="go('s-q2')">Siguiente</button>
+  </section>
+
+  <!-- QUESTION 2 -->
+  <section class="screen" id="s-q2">
+    <div class="progress"><div class="dot done"></div><div class="dot done"></div><div class="dot"></div></div>
+    <div class="q-title">¿Sigues alguna dieta o restricción?</div>
+    <div class="choices" id="q2-choices"></div>
+    <div style="flex:1;"></div>
+    <div style="display:flex; gap:10px;">
+      <button class="btn btn-ghost" onclick="go('s-q1')">Atrás</button>
+      <button class="btn btn-primary" id="q2-next" disabled onclick="go('s-q3')" style="flex:1;">Siguiente</button>
+    </div>
+  </section>
+
+  <!-- QUESTION 3 -->
+  <section class="screen" id="s-q3">
+    <div class="progress"><div class="dot done"></div><div class="dot done"></div><div class="dot done"></div></div>
+    <div class="q-title">¿Cuánto tiempo quieres dedicar a cocinar?</div>
+    <div class="choices" id="q3-choices"></div>
+    <div style="flex:1;"></div>
+    <div style="display:flex; gap:10px;">
+      <button class="btn btn-ghost" onclick="go('s-q2')">Atrás</button>
+      <button class="btn btn-primary" id="q3-next" disabled onclick="go('s-pantry')" style="flex:1;">Ver alimentos</button>
+    </div>
+  </section>
+
+  <!-- PANTRY / FOOD SELECTION -->
+  <section class="screen" id="s-pantry">
+    <div class="searchbar">🔍<input id="search" placeholder="Buscar alimento..." oninput="renderFoods()"></div>
+    <span class="count-pill" id="count-pill">0 seleccionados</span>
+    <div class="food-list" id="food-list"></div>
+    <button class="btn btn-primary" onclick="showRecipes()">START</button>
+  </section>
+
+  <!-- RECIPES LIST -->
+  <section class="screen" id="s-recipes">
+    <div class="back-row"><button class="icon-btn" onclick="go('s-pantry')">←</button><h2 style="margin:0; color:var(--green-dark); font-size:18px;">Tus recetas</h2></div>
+    <div id="recipes-list" style="display:flex; flex-direction:column; gap:12px; overflow-y:auto;"></div>
+  </section>
+
+  <!-- RECIPE DETAIL -->
+  <section class="screen" id="s-detail">
+    <div class="back-row"><button class="icon-btn" onclick="go('s-recipes')">←</button><h2 id="detail-title" style="margin:0; color:var(--green-dark); font-size:18px;"></h2></div>
+    <div class="ing-tags" id="detail-ings"></div>
+    <div class="card">
+      <div class="q-title" style="margin-bottom:8px;">Preparación</div>
+      <ol class="steps" id="detail-steps"></ol>
+    </div>
+  </section>
+
+  <footer class="tabbar" id="tabbar" style="display:none;">
+    <button class="tab" data-t="s-pantry" onclick="go('s-pantry')"><span class="ic">🧺</span>Despensa</button>
+    <button class="tab" data-t="s-recipes" onclick="showRecipes()"><span class="ic">🍽️</span>Recetas</button>
+    <button class="tab" data-t="s-q1" onclick="go('s-q1')"><span class="ic">⚙️</span>Preferencias</button>
+  </footer>
+</div>
+
+<script>
+const state = { goal:null, diet:null, time:null, foods:new Set() };
+
+const Q1 = [
+  {v:'perder', e:'⚖️', t:'Perder peso'},
+  {v:'mantener', e:'🌿', t:'Mantener mi peso'},
+  {v:'ganar', e:'💪', t:'Ganar masa muscular'},
+];
+const Q2 = [
+  {v:'ninguna', e:'🍽️', t:'Ninguna, como de todo'},
+  {v:'vegetariano', e:'🥦', t:'Vegetariana'},
+  {v:'vegano', e:'🌱', t:'Vegana'},
+  {v:'singluten', e:'🌾', t:'Sin gluten'},
+];
+const Q3 = [
+  {v:'rapido', e:'⚡', t:'Menos de 15 minutos'},
+  {v:'normal', e:'🕒', t:'Entre 15 y 30 minutos'},
+  {v:'largo', e:'🍲', t:'No me importa tardar más'},
+];
+
+function buildChoices(containerId, opts, key, nextBtnId){
+  const c = document.getElementById(containerId);
+  c.innerHTML = '';
+  opts.forEach(o=>{
+    const div = document.createElement('div');
+    div.className='choice'; div.innerHTML = `<span class="emoji">${o.e}</span><span>${o.t}</span>`;
+    div.onclick = ()=>{
+      [...c.children].forEach(ch=>ch.classList.remove('selected'));
+      div.classList.add('selected');
+      state[key]=o.v;
+      document.getElementById(nextBtnId).disabled=false;
+    };
+    c.appendChild(div);
+  });
+}
+buildChoices('q1-choices', Q1, 'goal', 'q1-next');
+buildChoices('q2-choices', Q2, 'diet', 'q2-next');
+buildChoices('q3-choices', Q3, 'time', 'q3-next');
+
+const FOODS = [
+  {id:'arroz', e:'🍚', n:'Arroz', cat:'Carbohidratos'},
+  {id:'patata', e:'🥔', n:'Patata', cat:'Carbohidratos'},
+  {id:'pasta', e:'🍝', n:'Pasta', cat:'Carbohidratos'},
+  {id:'pan', e:'🍞', n:'Pan', cat:'Carbohidratos'},
+  {id:'lechuga', e:'🥬', n:'Lechuga', cat:'Verduras'},
+  {id:'tomate', e:'🍅', n:'Tomate', cat:'Verduras'},
+  {id:'cebolla', e:'🧅', n:'Cebolla', cat:'Verduras'},
+  {id:'pimiento', e:'🫑', n:'Pimiento', cat:'Verduras'},
+  {id:'zanahoria', e:'🥕', n:'Zanahoria', cat:'Verduras'},
+  {id:'calabacin', e:'🥒', n:'Calabacín', cat:'Verduras'},
+  {id:'huevo', e:'🥚', n:'Huevo', cat:'Proteínas'},
+  {id:'pollo', e:'🍗', n:'Pollo', cat:'Proteínas'},
+  {id:'atun', e:'🐟', n:'Atún en lata', cat:'Proteínas'},
+  {id:'garbanzos', e:'🫘', n:'Garbanzos', cat:'Proteínas'},
+  {id:'lentejas', e:'🥣', n:'Lentejas', cat:'Proteínas'},
+  {id:'queso', e:'🧀', n:'Queso', cat:'Lácteos'},
+  {id:'yogur', e:'🥛', n:'Yogur', cat:'Lácteos'},
+  {id:'aceite', e:'🫒', n:'Aceite de oliva', cat:'Condimentos'},
+  {id:'sal', e:'🧂', n:'Sal', cat:'Condimentos'},
+  {id:'ajo', e:'🧄', n:'Ajo', cat:'Condimentos'},
+];
+
+function renderFoods(){
+  const q = document.getElementById('search').value.toLowerCase();
+  const list = document.getElementById('food-list');
+  list.innerHTML='';
+  let lastCat=null;
+  FOODS.filter(f=>f.n.toLowerCase().includes(q)).forEach(f=>{
+    if(f.cat!==lastCat){
+      const lab = document.createElement('div'); lab.className='cat-label'; lab.textContent=f.cat;
+      list.appendChild(lab); lastCat=f.cat;
+    }
+    const item = document.createElement('div');
+    item.className='food-item'+(state.foods.has(f.id)?' on':'');
+    item.innerHTML = `<span class="emoji">${f.e}</span><span class="name">${f.n}</span><span class="check">${state.foods.has(f.id)?'✓':''}</span>`;
+    item.onclick = ()=>{
+      state.foods.has(f.id) ? state.foods.delete(f.id) : state.foods.add(f.id);
+      renderFoods();
+    };
+    list.appendChild(item);
+  });
+  document.getElementById('count-pill').textContent = state.foods.size+' seleccionados';
+}
+
+const RECIPES = [
+  {id:'ensalada', n:'Ensalada fresca de tomate y lechuga', time:'rapido', diet:['ninguna','vegetariano','vegano','singluten'],
+   need:['lechuga','tomate','aceite','sal'],
+   steps:['Lava y trocea la lechuga y el tomate.','Colócalos en un bol.','Aliña con aceite de oliva y sal al gusto.']},
+  {id:'tortilla', n:'Tortilla de patata sencilla', time:'normal', diet:['ninguna','vegetariano','singluten'],
+   need:['patata','huevo','aceite','sal'],
+   steps:['Pela y corta la patata en láminas finas.','Fríe la patata en aceite hasta que esté tierna.','Bate los huevos con sal y mézclalos con la patata.','Cuaja la mezcla en la sartén por ambos lados.']},
+  {id:'arroz-verduras', n:'Arroz salteado con verduras', time:'normal', diet:['ninguna','vegetariano','vegano','singluten'],
+   need:['arroz','cebolla','pimiento','zanahoria','aceite','sal'],
+   steps:['Cuece el arroz según las instrucciones.','Corta la cebolla, el pimiento y la zanahoria en dados.','Saltea las verduras en aceite hasta que estén tiernas.','Añade el arroz cocido y mezcla bien con sal.']},
+  {id:'pollo-plancha', n:'Pollo a la plancha con ensalada', time:'rapido', diet:['ninguna','singluten'],
+   need:['pollo','lechuga','tomate','aceite','sal'],
+   steps:['Salpimienta el pollo y cocínalo a la plancha por ambos lados.','Prepara una ensalada de lechuga y tomate.','Sirve el pollo junto a la ensalada, aliñada con aceite.']},
+  {id:'pasta-ajo', n:'Pasta con ajo y aceite', time:'rapido', diet:['ninguna','vegetariano','vegano'],
+   need:['pasta','ajo','aceite','sal'],
+   steps:['Cuece la pasta en agua con sal.','Dora el ajo laminado en aceite a fuego suave.','Escurre la pasta y saltéala con el aceite de ajo.']},
+  {id:'lentejas', n:'Lentejas estofadas con verduras', time:'largo', diet:['ninguna','vegetariano','vegano','singluten'],
+   need:['lentejas','cebolla','zanahoria','ajo','aceite','sal'],
+   steps:['Sofríe la cebolla, el ajo y la zanahoria en aceite.','Añade las lentejas y cubre con agua.','Cocina a fuego medio hasta que las lentejas estén tiernas.','Rectifica de sal antes de servir.']},
+  {id:'garbanzos', n:'Garbanzos salteados con pimiento', time:'normal', diet:['ninguna','vegetariano','vegano','singluten'],
+   need:['garbanzos','pimiento','cebolla','ajo','aceite','sal'],
+   steps:['Sofríe la cebolla, el ajo y el pimiento en aceite.','Añade los garbanzos cocidos y saltea unos minutos.','Sazona con sal y sirve caliente.']},
+  {id:'atun-ensalada', n:'Ensalada de atún y tomate', time:'rapido', diet:['ninguna','singluten'],
+   need:['atun','tomate','lechuga','aceite','sal'],
+   steps:['Escurre el atún y mézclalo con la lechuga y el tomate troceados.','Aliña con aceite de oliva y sal.']},
+  {id:'tostada-queso', n:'Tostada de pan con queso', time:'rapido', diet:['ninguna','vegetariano'],
+   need:['pan','queso','aceite'],
+   steps:['Tuesta el pan.','Añade el queso por encima.','Rocía con un poco de aceite de oliva.']},
+  {id:'yogur-fruta', n:'Yogur cremoso para picar', time:'rapido', diet:['ninguna','vegetariano','singluten'],
+   need:['yogur'],
+   steps:['Sirve el yogur en un bol.','Disfrútalo tal cual o como base para lo que tengas a mano.']},
+];
+
+function matchScore(r){
+  const have = r.need.filter(i=>state.foods.has(i)).length;
+  return have / r.need.length;
+}
+function passesPrefs(r){
+  const dietOk = !state.diet || r.diet.includes(state.diet);
+  const timeOk = !state.time || state.time==='largo' || r.time===state.time || (state.time==='normal' && r.time==='rapido');
+  return dietOk && timeOk;
+}
+
+function showRecipes(){
+  go('s-recipes');
+  const list = document.getElementById('recipes-list');
+  list.innerHTML='';
+  const ranked = RECIPES.filter(passesPrefs)
+    .map(r=>({r, score:matchScore(r)}))
+    .filter(x=>x.score>0)
+    .sort((a,b)=>b.score-a.score);
+
+  if(ranked.length===0){
+    list.innerHTML = '<div class="empty">Selecciona algún alimento de tu despensa para ver recetas 🥗</div>';
+    return;
+  }
+  ranked.forEach(({r,score})=>{
+    const div = document.createElement('div');
+    div.className='recipe-card';
+    const full = score===1;
+    div.innerHTML = `<h3>${r.n}</h3>
+      <div class="recipe-meta">${r.time==='rapido'?'⚡ Rápida':r.time==='normal'?'🕒 Tiempo medio':'🍲 Con calma'}</div>
+      <span class="match-badge ${full?'full':''}">${full?'Tienes todo':'Te falta '+(r.need.length-Math.round(score*r.need.length))+' ingrediente(s)'}</span>`;
+    div.onclick = ()=>showDetail(r);
+    list.appendChild(div);
+  });
+}
+
+function showDetail(r){
+  go('s-detail');
+  document.getElementById('detail-title').textContent = r.n;
+  const ings = document.getElementById('detail-ings');
+  ings.innerHTML='';
+  r.need.forEach(i=>{
+    const f = FOODS.find(f=>f.id===i);
+    const tag = document.createElement('span');
+    tag.className='ing-tag'+(state.foods.has(i)?'':' missing');
+    tag.textContent = (f?f.e+' ':'')+(f?f.n:i);
+    ings.appendChild(tag);
+  });
+  const steps = document.getElementById('detail-steps');
+  steps.innerHTML='';
+  r.steps.forEach(s=>{
+    const li = document.createElement('li'); li.textContent=s; steps.appendChild(li);
+  });
+}
+
+function go(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  const tabbar = document.getElementById('tabbar');
+  tabbar.style.display = ['s-welcome','s-detail'].includes(id) ? 'none' : (['s-pantry','s-recipes','s-q1','s-q2','s-q3'].includes(id) ? 'flex' : 'none');
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', t.dataset.t===id || (id==='s-detail' && t.dataset.t==='s-recipes')));
+  if(id==='s-pantry') renderFoods();
+  window.scrollTo(0,0);
+}
+</script>
+</body>
+</html>
